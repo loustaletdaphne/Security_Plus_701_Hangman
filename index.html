@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="game-container">
+    <div class="section">
+      <div class="gallows">
+        <div class="hangman">
+          <div class="beam"></div>
+          <div class="head"></div>
+          <div class="body"></div>
+          <div class="arm left"></div>
+          <div class="arm right"></div>
+          <div class="leg left"></div>
+          <div class="leg right"></div>
+          <div class="base"></div>
+        </div>
+      </div>
+      <div class="label">Correct Letters</div>
+      <div class="correct-letters">
+        <div id="underscore-container"></div>
+        <div class="activation button">
+          <!-- Hidden button to trigger JS to generate random word -->
+          <button class="green-button" onclick="fetchAndShowRandomWord()">Generate Random Word</button>
+        </div>
+      </div>
+    </div>
+    <div class="game result">
+      <div id="win">YOU WIN!</div>
+      <div id="lose">GAME OVER</div>
+    </div>
+    <div class="section">
+      <div class="label">Missed Letters</div>
+      <div class="missed-letters">
+      </div>
+
+      <!-- Definition hint, shown as soon as a word is dealt -->
+      <div class="definition-section">
+        <div class="label">Definition</div>
+        <div id="definition-text" class="definition-text"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Revealed answer, filled in when the round ends -->
+  <div id="reveal-container" class="reveal-container" style="display: none;">
+    <div class="label">Show Word</div>
+    <div id="reveal-word" class="reveal-word"></div>
+    <div id="reveal-full-name" class="reveal-full-name"></div>
+  </div>
+
+  <div id="replay-container">
+    <button class="green-button" onclick="fetchAndShowRandomWord()">Play Again</button>
+  </div>
+  <script src="hangman.js"></script>
+</body>
+</html>

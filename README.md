@@ -1,8 +1,28 @@
-# Security_Plus_701_Hangman
-Hangman Game for those who wish to study Sec+ 701 acronyms and their definitions
-Maybe use points (+10) for winning and losing (-10) at words and try to get through every acronym once
-Player loses game if score is less than 0
-Algorithm to compute randomization: x % sizeof(csv)
-x will use Fisher Yates implementation to shuffle and pick items one by one to ensure all
-acronyms are tested on equally
-Game finishes when all terms have been tested but user may quit early using the quit button
+# Security+ 701 Hangman
+
+A hangman game for studying Security+ (SY0-701) acronyms and their definitions.
+
+Although it's built for Sec+ 701, it works with any CSV of terms, so you can use it to study whatever you like.
+
+## Customize Your Own Study Set
+
+1. **Create a CSV file** named `acronyms_and_definitions.csv` with three columns per row:
+
+```csv
+   acronym or term, full name, definition
+```
+
+   Example:
+
+```csv
+   MFA, Multi-Factor Authentication, Requires two or more verification methods to confirm identity
+```
+
+2. **Copy these files** from this repository into your own project:
+   - `hangman.js`
+   - `index.html`
+   - `styles.css`
+
+3. **Upload** the files to your personal GitHub repository.
+
+4. **Host the game** for free using [GitHub Pages](https://pages.github.com/).

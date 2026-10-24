@@ -1,62 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hangman Game</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security+ 701 Hangman</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="game-container">
-    <div class="section">
-      <div class="gallows">
-        <div class="hangman">
-          <div class="beam"></div>
-          <div class="head"></div>
-          <div class="body"></div>
-          <div class="arm left"></div>
-          <div class="arm right"></div>
-          <div class="leg left"></div>
-          <div class="leg right"></div>
-          <div class="base"></div>
+  <main id="stage" class="stage" data-screen="start">
+    <div class="board">
+
+      <!-- Screen 1: start -->
+      <section id="screen-start" class="screen">
+        <div class="title-card"><h1>Security+ 701 Hangman</h1></div>
+        <button class="oval-btn" onclick="fetchAndShowRandomWord()">Start Game</button>
+      </section>
+
+      <!-- Screen 2: game -->
+      <section id="screen-game" class="screen">
+        <div class="game-title">Security+ 701 Hangman</div>
+
+        <svg class="gallows" viewBox="0 0 200 220" fill="none" stroke="#0a7aff" stroke-width="7"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M10 208H170M30 208V12H150V48"/>
+          <g id="hm-head" class="part">
+            <circle cx="150" cy="68" r="20"/>
+            <path id="hm-face" class="part" stroke-width="3.5" d="M141 60l7 7m0-7l-7 7M152 60l7 7m0-7l-7 7M142 80h16"/>
+          </g>
+          <path id="hm-body"  class="part" d="M150 88V145"/>
+          <path id="hm-arm-l" class="part" d="M150 112L128 90"/>
+          <path id="hm-leg-l" class="part" d="M150 145L132 182"/>
+          <path id="hm-leg-r" class="part" d="M150 145L168 182"/>
+          <path id="hm-arm-r" class="part" d="M150 112L172 90"/>
+        </svg>
+
+        <div class="missed">
+          <div class="pill">Incorrect Guesses</div>
+          <div id="missed-letters" class="missed-box"></div>
         </div>
-      </div>
-      <div class="label">Correct Letters</div>
-      <div class="correct-letters">
-        <div id="underscore-container"></div>
-        <div class="activation button">
-          <!-- Hidden button to trigger JS to generate random word -->
-          <button class="green-button" onclick="fetchAndShowRandomWord()">Generate Random Word</button>
-        </div>
-      </div>
-    </div>
-    <div class="game result">
-      <div id="win">YOU WIN!</div>
-      <div id="lose">GAME OVER</div>
-    </div>
-    <div class="section">
-      <div class="label">Missed Letters</div>
-      <div class="missed-letters">
-      </div>
 
-      <!-- Definition hint, shown as soon as a word is dealt -->
-      <div class="definition-section">
-        <div class="label">Definition</div>
-        <div id="definition-text" class="definition-text"></div>
-      </div>
+        <div id="word" class="word"></div>
+        <div id="full-name" class="name-pill"></div>
+      </section>
+
+      <!-- Screen 3: win / lose -->
+      <section id="screen-result" class="screen">
+        <div id="result-title" class="title-card result-title"></div>
+        <div id="result-answer" class="name-pill answer-pill"></div>
+        <button class="oval-btn" onclick="showScreen('start')">Play Again</button>
+      </section>
     </div>
-  </div>
 
-  <!-- Revealed answer, filled in when the round ends -->
-  <div id="reveal-container" class="reveal-container" style="display: none;">
-    <div class="label">Show Word</div>
-    <div id="reveal-word" class="reveal-word"></div>
-    <div id="reveal-full-name" class="reveal-full-name"></div>
-  </div>
-
-  <div id="replay-container">
-    <button class="green-button" onclick="fetchAndShowRandomWord()">Play Again</button>
-  </div>
+    <div class="hint-panel"><span id="hint"></span></div>
+    <!-- Invisible input so phones/tablets bring up their keyboard -->
+    <input id="guess-input" class="sr-input" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Type a letter to guess">
+  </main>
   <script src="hangman.js"></script>
 </body>
 </html>

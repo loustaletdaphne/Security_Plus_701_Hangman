@@ -1,230 +1,88 @@
-body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      padding: 40px;
-    }
+:root {
+  --blue: #0a7aff;
+  --red: #cc1414;
+  --hover: #f65656;
+  --cream: #f7f4e8;
+  --font: "Patrick Hand", "Segoe Print", "Bradley Hand", "Chalkboard SE", "Comic Sans MS", cursive;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: #fff; color: var(--blue); font-family: var(--font); }
 
-    .game-container {
-      display: flex;
-      justify-content: space-between;
-      max-width: 800px;
-      margin: auto;
-      background: #fff;
-      border: 2px solid #ccc;
-      padding: 20px;
-      box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
-    }
+/* Tablet-style portrait stage; everything inside scales with its width (cqw) */
+.stage {
+  container-type: inline-size;
+  display: flex; flex-direction: column;
+  max-width: 760px; min-height: 100vh; margin: 0 auto;
+  background: #fff; box-shadow: 0 0 0 1px #eee;
+}
+.board {
+  container-type: size; /* lets children size from the board's height too (cqh) */
+  position: relative; width: 100%; aspect-ratio: 1.08;
+  min-height: 480px; max-height: calc(100vh - 150px); overflow: hidden;
+  background: url("usaf_logo.svg") center / cover no-repeat;
+}
+.hint-panel { flex: 1; background: var(--cream); padding: 3.4cqw 4cqw; font-size: 4.2cqw; line-height: 1.35; }
 
-    .gallows {
-      position: relative;
-      width: 150px;
-      height: 200px;
-      margin-bottom: 20px;
-      border-left: 6px solid black;
-      border-bottom: 6px solid black;
-    }
+/* Screens */
+.screen { display: none; position: absolute; inset: 0; }
+.stage[data-screen="start"]  #screen-start,
+.stage[data-screen="game"]   #screen-game,
+.stage[data-screen="result"] #screen-result { display: block; }
+.stage:not([data-screen="game"]) .hint-panel { visibility: hidden; }
 
-    .gallows::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100px;
-      height: 6px;
-      background: black;
-    }
+/* White "paper" cards and pills */
+.title-card, .pill, .name-pill {
+  background: #fff; border-radius: 1.2cqw; box-shadow: 0 .4cqw 1.2cqw rgba(0,0,0,.28);
+}
+.title-card { position: absolute; left: 50%; transform: translateX(-50%); padding: 2cqw 3cqw; text-align: center; }
+#screen-start .title-card { top: 31%; width: 66%; }
+h1 { margin: 0; font-size: min(9cqw, 12cqh); line-height: 1.1; font-weight: 400; }
 
-    .gallows::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 94px;
-      width: 6px;
-      height: 40px;
-      background: black;
-    }
+/* Big oval buttons */
+.oval-btn {
+  position: absolute; left: 50%; top: 66%; transform: translateX(-50%);
+  height: min(31cqw, 31cqh); width: auto; aspect-ratio: 5 / 3;
+  border: 1.1cqw solid var(--blue); border-radius: 50%;
+  background: rgba(255,255,255,.92); color: var(--blue);
+  font: inherit; font-size: min(5.6cqw, 8.5cqh); cursor: pointer; transition: background .15s;
+}
+.oval-btn:hover, .oval-btn:focus-visible { background: var(--hover); outline: none; }
 
-    .section {
-      flex: 1;
-      text-align: center;
-    }
+/* Game screen */
+.game-title { position: absolute; top: 2.5%; width: 100%; text-align: center; font-size: 4cqw; }
+.gallows {
+  position: absolute; left: 17%; top: 14%; width: min(28cqw, 41cqh);
+  filter: drop-shadow(0 0 .5cqw #fff) drop-shadow(0 0 .5cqw #fff);
+}
+.part { display: none; }
+.part.on { display: inline; }
 
-    .correct-letters, .missed-letters {
-      font-size: 24px;
-      margin-top: 20px;
-    }
+.missed { position: absolute; right: 3%; top: 13%; width: 37%; }
+.pill { padding: 1cqw 1.4cqw; text-align: center; font-size: 4.2cqw; color: var(--red); }
+.missed-box {
+  margin-top: 2cqw; min-height: min(25cqw, 30cqh); padding: 1.5cqw 2cqw;
+  border: .7cqw solid var(--red); background: rgba(255,255,255,.95);
+  color: var(--red); font-size: 5cqw; letter-spacing: 1cqw; text-transform: uppercase; word-break: break-all;
+}
 
-    .correct-letters {
-      color: green;
-    }
+.word { position: absolute; left: 4%; right: 4%; top: 62%; display: flex; justify-content: center; gap: 1.2cqw; }
+.slot {
+  flex: 0 1 9.5cqw; height: 11.5cqw; line-height: 11.5cqw; text-align: center; font-size: 8cqw;
+  background: rgba(255,255,255,.93); border-bottom: .8cqw solid var(--blue); border-radius: .8cqw .8cqw 0 0;
+}
+.slot.revealed { color: var(--red); }
+.slot.fixed  { border-bottom-color: transparent; }
+.slot.space  { flex: 0 0 3cqw; background: none; border: 0; }
 
-    .missed-letters {
-      color: red;
-    }
-
-    .correct-letters span, .missed-letters span {
-      margin: 0 8px;
-      color: red;
-      font-weight: bold;
-    }
-
-    .correct-letters span {
-      color: green;
-    }
-
-    .label {
-      font-size: 20px;
-      margin-bottom: 10px;
-      color: #333;
-      text-decoration: underline;
-    }
-
-    .beam {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 60px;
-      height: 5px;
-      background-color: black;
-    }
-
-    .head {
-      display: none;
-      position: absolute;
-      top: 40px;
-      left: 85px;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      border: 2px solid black;
-    }
-
-    .body {
-      display: none;
-      position: absolute;
-      top: 63px;
-      left: 95px;
-      width: 2px;
-      height: 40px;
-      background-color: black;
-    }
-
-    .arm {
-      display: none;
-      position: absolute;
-      top: 60px;
-      width: 30px;
-      height: 2px;
-      background-color: black;
-    }
-
-    .arm.left {
-      left: 67px;
-      transform: rotate(30deg);
-    }
-
-    .arm.right {
-      left: 95px;
-      transform: rotate(-30deg);
-    }
-
-    .leg {
-      display:none;
-      position: absolute;
-      top: 110px;
-      width: 30px;
-      height: 2px;
-      background-color: black;
-    }
-
-    .leg.left {
-      left: 67px;
-      transform: rotate(145deg);
-    }
-
-    .leg.right {
-      left: 95px;
-      transform: rotate(-145deg);
-    }
-
-    .game.result {
-      position: absolute;
-      top: 100px;
-      left: 25%;
-      font-size: 100px;
-    }
-
-    #win {
-      display: none;
-      color: green;
-    }
-
-    #lose {
-      display: none;
-      color: red;
-    }
-
-    .green-button {
-      background-color: #4CAF50;       /* Fresh green */
-      color: black;                    /* Black text */
-      border: 2px solid black;       /* Slightly darker green border */
-      border-radius: 12px;             /* Rounded corners */
-      padding: 10px 20px;              /* Comfortable spacing */
-      font-size: 16px;                 /* Readable text */
-      cursor: pointer;                 /* Pointer on hover */
-      transition: background-color 0.3s ease;
-    }
-
-    .green-button:hover {
-      background-color: red;       /* Slight hover effect */
-    }
+.name-pill { padding: 1cqw 2.4cqw; font-size: 4.6cqw; text-align: center; }
+.name-pill:empty { display: none; }
+#full-name { position: absolute; left: 50%; top: calc(62% + 12.8cqw); transform: translateX(-50%); max-width: 92%; }
 
 
-    #replay-container {
-      display: none;
-      text-align: center;
-      margin-top: 20px;
-    }
+/* Result screen */
+.result-title { top: 14%; width: 58%; font-size: 7cqw; }
+.result-title.lose { color: var(--red); }
+.result-title.win  { top: 24%; width: 80%; font-size: 12cqw; }
+.answer-pill { position: absolute; left: 50%; top: 33%; transform: translateX(-50%); color: var(--red); max-width: 92%; }
 
-    /* ---- Definition hint (right column, under Missed Letters) ---- */
-    .definition-section {
-      margin-top: 30px;
-    }
-
-    .definition-text {
-      font-size: 16px;
-      line-height: 1.4;
-      color: #333;
-      max-width: 320px;
-      margin: 0 auto;
-    }
-
-    /* ---- Digits/symbols shown up front (AES-256, TCP/IP, PCI DSS) ---- */
-    #underscore-container .fixed-char {
-      color: #555;
-    }
-
-    /* ---- Show Word area, below the game box ---- */
-    .reveal-container {
-      max-width: 800px;
-      margin: 20px auto 0;
-      padding: 15px 20px;
-      text-align: center;
-      background: #fff;
-      border: 2px solid #ccc;
-      box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
-      box-sizing: border-box;
-    }
-
-    .reveal-word {
-      font-size: 28px;
-      font-weight: bold;
-      letter-spacing: 2px;
-      color: #333;
-    }
-
-    .reveal-full-name {
-      font-size: 18px;
-      color: #555;
-      margin-top: 4px;
-    }
+.sr-input { position: fixed; bottom: 0; left: 0; width: 1px; height: 1px; opacity: 0; border: 0; padding: 0; }

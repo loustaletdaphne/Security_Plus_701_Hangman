@@ -49,6 +49,7 @@ function shuffle(array) {
 }
 
 async function fetchAndShowRandomWord() {
+  document.getElementById('guess-input').focus(); // must happen inside the click so tablets show their keyboard
   try {
     // Load the CSV once
     if (!allTerms) {
@@ -72,163 +73,102 @@ async function fetchAndShowRandomWord() {
   }
 }
 
-// Letter Guesses
+// ---------- Screens & gameplay ----------
+// Hangman parts appear in the order drawn in the mockups
+const PARTS = ['hm-head', 'hm-body', 'hm-arm-l', 'hm-leg-l', 'hm-leg-r', 'hm-arm-r'];
+const $ = id => document.getElementById(id);
+let unguessed = [], misses = 0, active = false, endTimer = null;
 
-let keydownHandler = null;
-let hangmanPoints = 0; /* Track which part of the hangman needs to be shown */
+function showScreen(name) {
+  clearTimeout(endTimer);
+  active = false;
+  $('stage').dataset.screen = name;
+  if (name !== 'game') $('hint').textContent = '';
+}
 
 function activateGamePlay(entry) {
   currentEntry = entry;
-  const word = entry.word.toLowerCase(); // guesses are lowercase, so compare against lowercase
-  const unguessed_letters = Array.from({ length: 26 }, (_, i) => String.fromCharCode(97 + i));
-  hangmanPoints = 0; // Reset global tracker
-  cleanBoard();
-  generateSpaces(entry.word);
-  document.getElementById('definition-text').textContent = entry.definition;
-  keydownHandler = createKeydownHandler(word, unguessed_letters);
-  document.addEventListener("keydown", keydownHandler);
+  misses = 0;
+  unguessed = 'abcdefghijklmnopqrstuvwxyz'.split('');
+  document.querySelectorAll('.part').forEach(p => p.classList.remove('on'));
+  $('missed-letters').textContent = '';
+  $('full-name').textContent = '';
+  buildSlots(entry.word);
+  $('hint').textContent = 'Hint: ' + entry.definition;
+  showScreen('game');
+  active = true;
 }
 
-function createKeydownHandler(word, unguessed_letters) {
-  return function(event) {
-    if (/^[a-zA-Z]$/.test(event.key)) {
-      const key = event.key.toLowerCase();
-      if (!unguessed_letters.includes(key)) return; // already guessed
-      if (word.includes(key)) {
-        showUserCorrectLetters(key, word, unguessed_letters);
-      } else {
-        logIncorrectLetter(key, unguessed_letters);
-        hangmanPoints++;
-        hangMan(hangmanPoints);
-      }
+// Letters become blanks; digits/symbols (AES-256, TCP/IP) are shown up front; spaces become gaps
+function buildSlots(word) {
+  const box = $('word');
+  box.innerHTML = '';
+  for (const ch of word) {
+    const s = document.createElement('span');
+    s.className = 'slot';
+    s.dataset.ch = ch;
+    if (/[a-z]/i.test(ch)) s.classList.add('blank');
+    else if (ch === ' ') s.classList.add('space');
+    else { s.classList.add('fixed'); s.textContent = ch; }
+    box.appendChild(s);
+  }
+}
+
+function handleGuess(key) {
+  if (!active || !/^[a-z]$/.test(key) || !unguessed.includes(key)) return; // also ignores repeats
+  unguessed.splice(unguessed.indexOf(key), 1);
+
+  let hit = false;
+  document.querySelectorAll('#word .blank').forEach(s => {
+    if (s.dataset.ch.toLowerCase() === key) {
+      s.textContent = s.dataset.ch;      // keep the term's original casing
+      s.classList.add('filled');
+      hit = true;
     }
-  };
-}
-
-function hangMan(hangmanPoints) {
-  if (hangmanPoints == 1) {
-    show('.head');
-  } else if (hangmanPoints == 2) {
-    show('.body');
-  } else if (hangmanPoints == 3) {
-    show('.arm.left');
-  } else if (hangmanPoints == 4) {
-    show('.arm.right');
-  } else if (hangmanPoints == 5) {
-    show('.leg.left');
-  } else {
-    show('.leg.right');
-    revealWord();
-    endGame('#lose');
-  }
-}
-
-// On a loss, fill in the missing letters in red (correct guesses stay green)
-function revealWord() {
-  const spans = document.querySelectorAll('#underscore-container span');
-  for (let i = 0; i < currentEntry.word.length; i++) {
-    if (spans[i].textContent === '_') {
-      spans[i].textContent = currentEntry.word[i];
-      spans[i].style.color = 'red';
-    }
-  }
-}
-
-// Fill in and show the "Show Word" area (acronym + full name)
-function revealAnswer() {
-  document.getElementById('reveal-word').textContent = currentEntry.word;
-  document.getElementById('reveal-full-name').textContent = currentEntry.fullName;
-  document.getElementById('reveal-container').style.display = 'block';
-}
-
-function show(classname) {
-  let element = document.querySelector(classname);
-  element.style.display = 'block';
-}
-
-function endGame(classname) {
-  document.removeEventListener("keydown", keydownHandler);
-  keydownHandler = null;
-  show(classname);
-  revealAnswer();
-  document.getElementById('replay-container').style.display = 'block';
-}
-
-function logIncorrectLetter(guess, remaining_guesses) {
-  const incorrectletterbox = document.querySelector('.missed-letters');
-  if (remaining_guesses.includes(guess)) {
-    incorrectletterbox.textContent += guess;
-  }
-  removeGuess(remaining_guesses, guess);
-}
-
-function showUserCorrectLetters(guess, word, remaining_guesses) {
-  const spans = document.querySelectorAll('#underscore-container span');
-  for (let i = 0; i < word.length; i++) {
-    if (guess === word[i]) {
-      spans[i].textContent = currentEntry.word[i]; // show the term's original casing
-    }
-  }
-  removeGuess(remaining_guesses, guess);
-
-  // Count remaining empty spaces
-  const remainingUnderscores = Array.from(spans).filter(span => span.textContent === '_').length;
-  if (remainingUnderscores === 0) {
-    endGame('#win');
-  }
-}
-
-function removeGuess(remaining_guesses, guess) {
-  for (let i = 0; i < remaining_guesses.length; i++) {
-    if (remaining_guesses[i] === guess) {
-      remaining_guesses.splice(i, 1);
-      break;
-    }
-  }
-}
-
-function cleanBoard() {
-  // Stop listening for keys from any previous game
-  if (keydownHandler) {
-    document.removeEventListener("keydown", keydownHandler);
-    keydownHandler = null;
-  }
-
-  // Hide start and replay buttons while a game is in progress
-  document.querySelector('.activation.button').style.display = 'none';
-  document.getElementById('replay-container').style.display = 'none';
-
-  // Hide the win/lose messages
-  document.getElementById('win').style.display = 'none';
-  document.getElementById('lose').style.display = 'none';
-
-  // Hide all hangman body parts
-  document.querySelectorAll('.head, .body, .arm, .leg').forEach(part => {
-    part.style.display = 'none';
   });
 
-  // Clear missed letters, the old word's blanks, the definition, and the revealed answer
-  document.querySelector('.missed-letters').textContent = '';
-  document.getElementById('underscore-container').innerHTML = '';
-  document.getElementById('definition-text').textContent = '';
-  document.getElementById('reveal-word').textContent = '';
-  document.getElementById('reveal-full-name').textContent = '';
-  document.getElementById('reveal-container').style.display = 'none';
-}
-
-// Letters become blanks; digits and symbols (AES-256, TCP/IP, PCI DSS) are shown up front
-// because the game only accepts a-z guesses.
-function generateSpaces(word) {
-  const container = document.getElementById('underscore-container');
-
-  for (const ch of word) {
-    const span = document.createElement('span');
-    if (/[a-zA-Z]/.test(ch)) {
-      span.textContent = '_';
-    } else {
-      span.textContent = ch === ' ' ? '\u00A0' : ch;
-      span.className = 'fixed-char';
-    }
-    container.appendChild(span);
+  if (hit) {
+    if (!document.querySelector('#word .blank:not(.filled)')) endRound(true);
+  } else {
+    $('missed-letters').textContent += key;
+    $(PARTS[misses++]).classList.add('on');
+    if (misses >= PARTS.length) endRound(false);
   }
 }
+
+// Win or out of guesses: reveal the answer, then move to the result screen after a short pause
+function endRound(won) {
+  if (!active) return;
+  active = false;
+  if (!won) {
+    document.querySelectorAll('#word .blank:not(.filled)').forEach(s => {
+      s.textContent = s.dataset.ch;
+      s.classList.add('revealed');         // red = letters you didn't get
+    });
+    PARTS.forEach(id => $(id).classList.add('on'));
+    $('hm-face').classList.add('on');      // X eyes
+  }
+  $('full-name').textContent = currentEntry.fullName;
+  endTimer = setTimeout(() => showResult(won), 2800);
+}
+
+function showResult(won) {
+  const t = $('result-title');
+  t.textContent = won ? 'YOU WON!' : 'YOU LOSE :(';
+  t.className = 'title-card result-title ' + (won ? 'win' : 'lose');
+  $('result-answer').textContent = won ? '' : 'The correct answer was ' + currentEntry.word;
+  showScreen('result');
+}
+
+// Input: physical keyboards fire keydown; tablet keyboards go through the hidden input.
+// A letter handled by one path is already "guessed" when the other fires, so nothing double-counts.
+document.addEventListener('keydown', e => {
+  if (!e.ctrlKey && !e.metaKey && !e.altKey) handleGuess(e.key.toLowerCase());
+});
+$('guess-input').addEventListener('input', e => {
+  for (const ch of e.target.value) handleGuess(ch.toLowerCase());
+  e.target.value = '';
+});
+document.querySelector('.board').addEventListener('click', () => {
+  if (active) $('guess-input').focus();
+});

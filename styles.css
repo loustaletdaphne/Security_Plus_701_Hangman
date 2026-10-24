@@ -65,7 +65,9 @@ h1 { margin: 0; font-size: min(9cqw, 12cqh); line-height: 1.1; font-weight: 400;
   color: var(--red); font-size: 5cqw; letter-spacing: 1cqw; text-transform: uppercase; word-break: break-all;
 }
 
-.word { position: absolute; left: 4%; right: 4%; top: 62%; display: flex; justify-content: center; gap: 1.2cqw; }
+/* The word and the full name stack in one column, so a long name (2+ lines) pushes down instead of being cut off */
+.word-area { position: absolute; left: 4%; right: 4%; top: 60%; display: flex; flex-direction: column; align-items: center; gap: 1.2cqw; }
+.word { display: flex; justify-content: center; gap: 1.2cqw; width: 100%; }
 .slot {
   flex: 0 1 9.5cqw; height: 11.5cqw; line-height: 11.5cqw; text-align: center; font-size: 8cqw;
   background: rgba(255,255,255,.93); border-bottom: .8cqw solid var(--blue); border-radius: .8cqw .8cqw 0 0;
@@ -74,9 +76,9 @@ h1 { margin: 0; font-size: min(9cqw, 12cqh); line-height: 1.1; font-weight: 400;
 .slot.fixed  { border-bottom-color: transparent; }
 .slot.space  { flex: 0 0 3cqw; background: none; border: 0; }
 
-.name-pill { padding: 1cqw 2.4cqw; font-size: 4.6cqw; text-align: center; }
+.name-pill { padding: 1cqw 2.4cqw; font-size: min(4.6cqw, 5.2cqh); line-height: 1.2; text-align: center; }
 .name-pill:empty { display: none; }
-#full-name { position: absolute; left: 50%; top: calc(62% + 12.8cqw); transform: translateX(-50%); max-width: 92%; }
+#full-name { max-width: 92%; }
 
 
 /* Result screen */

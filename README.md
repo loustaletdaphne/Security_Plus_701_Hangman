@@ -8,15 +8,17 @@ Although it's built for Sec+ 701, it works with any CSV of terms, so you can use
 
 1. **Create a CSV file** named `acronyms_and_definitions.csv` with three columns per row:
 
-```csv
-   acronym or term, full name, definition
-```
+   ```csv
+   acronym or term,full name,definition
+   ```
 
    Example:
 
-```csv
-   MFA, Multi-Factor Authentication, Requires two or more verification methods to confirm identity
-```
+   ```csv
+   MFA,Multi-Factor Authentication,Requires two or more verification methods to confirm identity
+   ```
+
+   Store the CSV in the same directory as the other files.
 
 2. **Copy these files** from this repository into your own project:
    - `hangman.js`
